@@ -71,7 +71,17 @@
                 log('Script started');
                 
                 const urlParams = new URLSearchParams(window.location.search);
-                const roomUrl = urlParams.get('room') || 'https://reetune.daily.co/Test';
+                
+                // Get room parameter (supports 'room', 'roomUrl', or 'url')
+                const roomParam = urlParams.get('room') || 
+                                 urlParams.get('roomUrl') || 
+                                 urlParams.get('url') ||
+                                 'Test'; // Default room name
+                
+                // Build full URL if only room name is provided
+                const roomUrl = roomParam.startsWith('http') 
+                    ? roomParam 
+                    : `https://reetune.daily.co/${roomParam}`;
                 
                 log('Room URL: ' + roomUrl);
                 log('Creating Daily frame...');
