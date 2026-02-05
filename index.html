@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+html<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -78,12 +78,18 @@
                                  urlParams.get('url') ||
                                  'Test'; // Default room name
                 
+                // Get token parameter
+                const token = urlParams.get('token');
+                
                 // Build full URL if only room name is provided
                 const roomUrl = roomParam.startsWith('http') 
                     ? roomParam 
                     : `https://reetune.daily.co/${roomParam}`;
                 
                 log('Room URL: ' + roomUrl);
+                if (token) {
+                    log('Token found: ' + token.substring(0, 20) + '...');
+                }
                 log('Creating Daily frame...');
                 
                 // Create frame with Instagram-style customization
@@ -129,10 +135,14 @@
                 
                 log('Daily frame created, joining room...');
                 
+                // Build join options
+                const joinOptions = { url: roomUrl };
+                if (token) {
+                    joinOptions.token = token;
+                }
+                
                 // Join the room
-                callFrame.join({ 
-                    url: roomUrl
-                }).then(() => {
+                callFrame.join(joinOptions).then(() => {
                     log('✅ Successfully joined!');
                     // Hide debug after 3 seconds
                     setTimeout(() => {
