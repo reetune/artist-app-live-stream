@@ -1,4 +1,4 @@
-html<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -92,7 +92,7 @@ html<!DOCTYPE html>
                 }
                 log('Creating Daily frame...');
                 
-                // Create frame with Instagram-style customization
+                // Create frame with broadcast mode settings
                 const callFrame = window.DailyIframe.createFrame(
                     document.getElementById('call-frame'),
                     {
@@ -100,10 +100,10 @@ html<!DOCTYPE html>
                         showLeaveButton: true,
                         showFullscreenButton: true,
                         showLocalVideo: false,
-                        showParticipantsBar: true,
+                        showParticipantsBar: false,
                         
                         // Active speaker highlighting
-                        activeSpeakerMode: true,
+                        activeSpeakerMode: false,
                         
                         // Full screen styling
                         iframeStyle: {
@@ -129,7 +129,10 @@ html<!DOCTYPE html>
                                 mainAreaText: '#FFFFFF',
                                 supportiveText: '#A8A8A8'
                             }
-                        }
+                        },
+                        
+                        // Layout settings for broadcast mode
+                        layout: 'single-participant'
                     }
                 );
                 
