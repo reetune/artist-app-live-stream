@@ -76,10 +76,13 @@
                 const roomParam = urlParams.get('room') || 
                                  urlParams.get('roomUrl') || 
                                  urlParams.get('url') ||
-                                 'Test'; // Default room name
+                                 'Test';
                 
                 // Get token parameter
                 const token = urlParams.get('token');
+                
+                // Check if this is broadcaster or viewer
+                const isBroadcaster = urlParams.get('broadcaster') === 'true';
                 
                 // Build full URL if only room name is provided
                 const roomUrl = roomParam.startsWith('http') 
@@ -87,18 +90,19 @@
                     : `https://reetune.daily.co/${roomParam}`;
                 
                 log('Room URL: ' + roomUrl);
+                log('Role: ' + (isBroadcaster ? 'BROADCASTER' : 'VIEWER'));
                 if (token) {
                     log('Token found: ' + token.substring(0, 20) + '...');
                 }
                 log('Creating Daily frame...');
                 
-                // Create frame with broadcast mode settings
+                // Create frame with different settings based on role
                 const callFrame = window.DailyIframe.createFrame(
                     document.getElementById('call-frame'),
                     {
                         showLeaveButton: true,
                         showFullscreenButton: true,
-                        showLocalVideo: false,
+                        showLocalVideo: isBroadcaster,  // TRUE for broadcaster, FALSE for viewers
                         showParticipantsBar: false,
                         activeSpeakerMode: false
                     }
@@ -112,11 +116,63 @@
                     joinOptions.token = token;
                 }
                 
+                // Viewers join with camera/mic off
+                if (!isBroadcaster) {
+                    joinOptions.setUserData = { isViewer: true };
+                }
+                
                 // Join the room
                 callFrame.join(joinOptions).then(() => {
                     log('✅ Successfully joined!');
+                    
+                    // If viewer, turn off their camera and mic
+                    if (!isBroadcaster) {
+                        callFrame.setLocalVideo(false);
+                        callFrame.setLocalAudio(false);
+                        log('Viewer mode: camera and mic disabled');
+                    }
+                    
                     // Hide debug after 3 seconds
                     setTimeout(() => {
                         debug.classList.add('hide');
                     }, 3000);
                 }).catch((error) => {
+                    log('❌ Join error: ' + error.message);
+                });
+                
+                // Event listeners
+                callFrame.on('joined-meeting', () => {
+                    log('Joined meeting event');
+                });
+                
+                callFrame.on('participant-joined', (e) => {
+                    log('Participant joined');
+                });
+                
+                callFrame.on('participant-left', (e) => {
+                    log('Participant left');
+                });
+                
+                callFrame.on('error', (event) => {
+                    log('❌ Error: ' + JSON.stringify(event));
+                });
+                
+            } catch (error) {
+                log('❌ Fatal: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
+```
+
+**How to use:**
+
+**For the broadcaster:**
+```
+https://reetune.github.io/artist-app-live-stream/?room=New_New&token=YOUR_TOKEN&broadcaster=true
+```
+
+**For viewers:**
+```
+https://reetune.github.io/artist-app-live-stream/?room=New_New&token=VIEWER_TOKEN
